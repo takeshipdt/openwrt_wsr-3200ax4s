@@ -1,13 +1,9 @@
-name: OpenWrt Custom Builder
+name: OpenWrt GitHub Builder
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
-
-env:
-  TZ: Asia/Tokyo
 
 permissions:
   contents: write
@@ -20,51 +16,12 @@ jobs:
     - name: Checkout Your Repository
       uses: actions/checkout@v4
 
-    - name: Initialize Environment
+    - name: Run Builder Script
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-        sudo docker image prune --all --force
-        sudo -E apt-get -qq update
-        sudo -E apt-get -qq install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools python3-setuptools qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-        sudo timedatectl set-timezone "$TZ"
-
-    - name: Clone OpenWrt Source
-      run: |
-        git clone https://github.com -b v25.12.5 openwrt-src
-
-    - name: Update & Install Feeds
-      run: |
-        cd openwrt-src
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-
-    - name: Apply Your Custom Git Configurations
-      run: |
-        # あなたのリポジトリにある設定ファイル群をOpenWrtソースへ上書き
-        cp .config openwrt-src/.config
-        
-        # DTSファイルの変更をGitパッチとして適用
-        cd openwrt-src
-        if [ -d "../patches" ]; then
-          git apply ../patches/*.patch
-        fi
-        
-        # カスタムスクリプトを実行（vermagic固定やカーネル設定変更など）
-        chmod +x ../diy-script.sh
-        ../diy-script.sh
-
-    - name: Download Packages
-      run: |
-        cd openwrt-src
-        make defconfig
-        make download -j8
-
-    - name: Compile Firmware
-      run: |
-        cd openwrt-src
-        make -j$(nproc) || make -j1 V=s
+        chmod +x build.sh
+        ./build.sh
 
     - name: Upload Firmware to GitHub Releases
       uses: softprops/action-gh-release@v2
@@ -73,4 +30,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: openwrt-wsr3200ax4s-${{ github.sha }}
-        files: openwrt-src/bin/targets/mediatek/mt7622/*
+        files: openwrt/bin/targets/mediatek/mt7622/*
