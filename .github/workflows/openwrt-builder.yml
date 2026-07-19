@@ -16,22 +16,21 @@ jobs:
     - name: Checkout Your Repository
       uses: actions/checkout@v4
       
- # コンテナの一般ユーザーのフォルダ(ccache)を安全に記憶する設定
     - name: Cache ccache
       uses: actions/cache@v4
       with:
-        path: /home/buildbot/.ccache
+        path: ${{ github.workspace }}/.ccache
         key: ubuntu-22.04-openwrt-ccache-${{ github.sha }}
         restore-keys: |
           ubuntu-22.04-openwrt-ccache-
 
     - name: Run Builder Script
       run: |
-        # ワークスペース全体の所有権をbuildbotユーザーに変更
+        # キャッシュフォルダの所有権も含めてbuildbotユーザーに変更
         chown -R buildbot:buildbot $GITHUB_WORKSPACE
         chmod +x build.sh
         
-        # 【修正】sudoの代わりに、コンテナに必ず入っている su コマンドで一般ユーザーを実行します
+        # 一般ユーザー(buildbot)として安全にビルドを実行
         su buildbot -c "./build.sh"
 
     - name: Upload Firmware to GitHub Releases
