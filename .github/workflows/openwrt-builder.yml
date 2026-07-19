@@ -11,11 +11,15 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    # OpenWrt公式のビルド用コンテナを使用（環境エラーを完全回避）
+    container:
+      image: ghcr.io/openwrt/buildbot/buildworker-v25.12.5:latest
 
     steps:
     - name: Checkout Your Repository
       uses: actions/checkout@v4
 
+    # コンテナ環境でも、ccacheフォルダ（~/.ccache）をしっかり記憶・復元します
     - name: Cache ccache
       uses: actions/cache@v4
       with:
@@ -25,8 +29,6 @@ jobs:
           ubuntu-22.04-openwrt-ccache-
 
     - name: Run Builder Script
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
         chmod +x build.sh
         ./build.sh
