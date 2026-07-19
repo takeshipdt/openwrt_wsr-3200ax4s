@@ -16,22 +16,14 @@ jobs:
     - name: Checkout Your Repository
       uses: actions/checkout@v4
 
-    - name: Cache ccache
-      uses: actions/cache@v4
-      with:
-        path: ~/.ccache
-        key: ubuntu-22.04-openwrt-ccache-${{ github.sha }}
-        restore-keys: |
-          ubuntu-22.04-openwrt-ccache-
-
     - name: Run Builder Script
       run: |
-        # ワークスペース全体の所有権を念のためbuildbot（一般ユーザー）に変更
+        # ワークスペース全体の所有権をbuildbotユーザーに変更
         chown -R buildbot:buildbot $GITHUB_WORKSPACE
         chmod +x build.sh
         
-        # 【解決策】このステップの実行だけ、一般ユーザー(buildbot)に「なりすまして」実行します！
-        sudo -u buildbot ./build.sh
+        # 【修正】sudoの代わりに、コンテナに必ず入っている su コマンドで一般ユーザーを実行します
+        su buildbot -c "./build.sh"
 
     - name: Upload Firmware to GitHub Releases
       uses: softprops/action-gh-release@v2
