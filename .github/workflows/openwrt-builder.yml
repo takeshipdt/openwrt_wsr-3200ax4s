@@ -16,6 +16,14 @@ jobs:
     - name: Checkout Your Repository
       uses: actions/checkout@v4
 
+    - name: Cache ccache
+      uses: actions/cache@v4
+      with:
+        path: ~/.ccache
+        key: ${{ runs-on }}-openwrt-ccache-${{ github.sha }}
+        restore-keys: |
+          ${{ runs-on }}-openwrt-ccache-      
+
     - name: Run Builder Script
       env:
         DEBIAN_FRONTEND: noninteractive
