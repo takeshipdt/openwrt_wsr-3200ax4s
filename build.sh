@@ -21,7 +21,12 @@ echo -e "all:\n\t@echo 'Dummy liblzo'\ncompile:\n\t@echo 'Dummy compile'\ninstal
 # lzopのダミー化（ここを追加！）
 mkdir -p ./tools/lzop
 echo -e "all:\n\t@echo 'Dummy lzop'\ncompile:\n\t@echo 'Dummy compile'\ninstall:\n\t@echo 'Dummy install'\nclean:\n\t@echo 'Dummy clean'" > ./tools/lzop/Makefile
-
+# 3. mtd-rwのダミー化（ここを追加！）
+mkdir -p ./package/feeds/packages/mtd-rw
+echo -e "all:\n\t@echo 'Dummy mtd-rw'\ncompile:\n\t@echo 'Dummy compile'\ninstall:\n\t@echo 'Dummy install'\nclean:\n\t@echo 'Dummy clean'" > ./package/feeds/packages/mtd-rw/Makefile
+# 4. mdio-netlinkのダミー化（ここを追加！）
+mkdir -p ./package/feeds/packages/mdio-netlink
+echo -e "all:\n\t@echo 'Dummy mdio-netlink'\ncompile:\n\t@echo 'Dummy compile'\ninstall:\n\t@echo 'Dummy install'\nclean:\n\t@echo 'Dummy clean'" > ./package/feeds/packages/mdio-netlink/Makefile
 
 # 4. 設定ファイルの取得と反映
 wget https://downloads.openwrt.org/releases/25.12.5/targets/mediatek/mt7622/config.buildinfo -O .config
